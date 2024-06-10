@@ -1,0 +1,51 @@
+[
+  {
+    "carrier": "Aeroflot",
+    "origin": "Владивосток",
+    "destination": "Тель-Авив",
+    "price": 1000,
+    "duration": 3
+  },
+  {
+    "carrier": "S7 Airlines",
+    "origin": "Владивосток",
+    "destination": "Тель-Авив",
+    "price": 1500,
+    "duration": 4
+  },
+  {
+    "carrier": "Transaero",
+    "origin": "Владивосток",
+    "destination": "Тель-Авив",
+    "price": 2000,
+    "duration": 5
+  },
+  {
+    "carrier": "Aeroflot",
+    "origin": "Владивосток",
+    "destination": "Тель-Авив",
+    "price": 1800,
+    "duration": 6
+  },
+  {
+    "carrier": "Pobeda",
+    "origin": "Владивосток",
+    "destination": "Тель-Авив",
+    "price": 3000,
+    "duration": 7
+  },
+  {
+    "carrier": "Air France",
+    "origin": "Владивосток",
+    "destination": "Тель-Авив",
+    "price": 3500,
+    "duration": 8
+  },
+  {
+    "carrier": "British Airways",
+    "origin": "Владивосток",
+    "destination": "Тель-Авив",
+    "price": 4000,
+    "duration": 9
+  }
+]
