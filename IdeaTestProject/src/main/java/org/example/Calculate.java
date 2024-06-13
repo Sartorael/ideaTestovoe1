@@ -3,79 +3,63 @@ package org.example;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Calculate {
-  public void calculateMinFlightTimeAndPriceDifference(List<Flight> flights) {
-    List<Flight> vladivostokToTelAvivFlights =
-        filterFlightsByOriginAndDestination(flights, "Владивосток", "Тель-Авив");
+    public void calculateMinFlightTimePerCarrier(List<Flight> flights) {
+        List<Flight> vladToTlvFlights = filterFlightsByOriginAndDestination(flights, "VVO", "TLV");
+        Map<String, Integer> minFlightTimePerCarrier = vladToTlvFlights.stream()
+                .collect(Collectors.groupingBy(
+                        Flight::getCarrier,
+                        Collectors.minBy(Comparator.comparingInt(Flight::getDuration))
+                ))
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> e.getValue().map(Flight::getDuration).orElse(Integer.MAX_VALUE)
+                ));
 
-    if (vladivostokToTelAvivFlights.isEmpty()) {
-      System.out.println("Отсутствуют рейсы между городами Владивосток и Тель-Авив");
-      return;
+        System.out.println("Минимальное время полета между городами Владивосток и Тель-Авив для каждого авиаперевозчика:");
+        minFlightTimePerCarrier.forEach((carrier, minTime) -> {
+            System.out.println(carrier + ": " + minTime + " минут");
+        });
     }
 
-    Flight minFlightTime =
-        vladivostokToTelAvivFlights.stream()
-            .min(Comparator.comparingInt(Flight::getDuration))
-            .orElseThrow();
+    public void calculateAverageAndMedianPrice(List<Flight> flights) {
+        List<Flight> vladToTlvFlights = filterFlightsByOriginAndDestination(flights, "VVO", "TLV");
 
-    System.out.println("Минимальное время полета от Владивостока до Тель-Авива:");
-    System.out.println(minFlightTime);
+        double averagePrice = calculateAverage(vladToTlvFlights.stream()
+                .mapToInt(Flight::getPrice)
+                .toArray());
 
-    List<Integer> prices = getFlightPrices(vladivostokToTelAvivFlights);
-    double averagePrice = calculateAveragePrice(prices);
-    double medianPrice = calculateMedianPrice(prices);
+        int medianPrice = calculateMedian(vladToTlvFlights.stream()
+                .mapToInt(Flight::getPrice)
+                .sorted()
+                .toArray());
 
-    System.out.println("Средняя цена полета от Владивостока до Тель-Авива:");
-    System.out.println(averagePrice);
+        System.out.println("Средняя цена полета между Владивостоком и Тель-Авивом: " + averagePrice);
+        System.out.println("Медиана цены полета между Владивостоком и Тель-Авивом: " + medianPrice);
+        System.out.println("Разница между средней ценой и медианой: " + (averagePrice - medianPrice));
+    }
 
-    System.out.println("Медианная цена полета от Владивостока до Тель-Авива:");
-    System.out.println(medianPrice);
+    private List<Flight> filterFlightsByOriginAndDestination(List<Flight> flights, String origin, String destination) {
+        return flights.stream()
+                .filter(f -> f.getOrigin().equals(origin) && f.getDestination().equals(destination))
+                .collect(Collectors.toList());
+    }
 
-    double priceDifference = averagePrice - medianPrice;
+    private double calculateAverage(int[] values) {
+        return values.length > 0 ? (double) java.util.Arrays.stream(values).sum() / values.length : 0.0;
+    }
 
-    System.out.println(
-        "Разница между средней ценой и медианой для полета от Владивостока до Тель-Авива:");
-    System.out.println(priceDifference);
-  }
-
-  private List<Flight> filterFlightsByOriginAndDestination(
-      List<Flight> flights, String origin, String destination) {
-    List<Flight> filteredFlights = new ArrayList<>();
-
-    for (Flight flight : flights) {
-      if (flight.getOrigin() != null && flight.getDestination() != null) {
-        if (flight.getOrigin().equals(origin) && flight.getDestination().equals(destination)) {
-          filteredFlights.add(flight);
+    private int calculateMedian(int[] values) {
+        int length = values.length;
+        if (length == 0) return 0;
+        if (length % 2 == 0) {
+            return (values[length / 2 - 1] + values[length / 2]) / 2;
+        } else {
+            return values[length / 2];
         }
-      }
     }
-
-    return filteredFlights;
-  }
-
-  private List<Integer> getFlightPrices(List<Flight> flights) {
-    List<Integer> prices = new ArrayList<>();
-
-    for (Flight flight : flights) {
-      prices.add(flight.getPrice());
-    }
-
-    return prices;
-  }
-
-  private double calculateAveragePrice(List<Integer> prices) {
-    return prices.stream().mapToInt(Integer::intValue).average().orElse(0.0);
-  }
-
-  private double calculateMedianPrice(List<Integer> prices) {
-    int size = prices.size();
-    if (size % 2 == 0) {
-      int midIndex = size / 2;
-      return (double) (prices.get(midIndex - 1) + prices.get(midIndex)) / 2;
-    } else {
-      int midIndex = size / 2;
-      return prices.get(midIndex);
-    }
-  }
 }
